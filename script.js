@@ -1,127 +1,170 @@
 /** @type {HTMLCanvasElement} */
+
 const canvas1 = document.getElementById("canvas1");
-const ctx1 = canvas1.getContext("2d");
-
 const canvas2 = document.getElementById("canvas2");
+const canvas3 = document.getElementById("canvas3");
+const canvas4 = document.getElementById("canvas4");
+
+const ctx1 = canvas1.getContext("2d");
 const ctx2 = canvas2.getContext("2d");
+const ctx3 = canvas3.getContext("2d");
+const ctx4 = canvas4.getContext("2d");
 
-const CANVAS_WIDTH = (canvas1.width = 500);
-const CANVAS_HEIGHT = (canvas1.height = 400);
+const CANVAS_HEIGHT =
+  (canvas1.height =
+  canvas2.height =
+  canvas3.height =
+  canvas4.height =
+    700);
 
-canvas2.height = CANVAS_HEIGHT;
-canvas2.width = CANVAS_WIDTH;
+const CANVAS_WIDTH =
+  (canvas1.width =
+  canvas2.width =
+  canvas3.width =
+  canvas4.width =
+    400);
 
-const numberOfEnemies1 = 20;
-const enemiesArr1 = [];
-let gameFrame1 = 0;
-
-const numberOfEnemies2 = 1;
-const enemiesArr2 = [];
-let gameFrame2 = 0;
-
-class Enemy1 {
-  constructor() {
+class Enemy {
+  constructor(ctx, width, height, ratio) {
+    this.ctx = ctx;
     this.image = new Image();
-    this.image.src = "./images/enemy1.png";
-    this.speed = Math.random() * 4 + 1;
-    this.spriteWidth = 293;
-    this.spriteHeight = 155;
-    this.width = this.spriteWidth / 2.5;
-    this.height = this.spriteHeight / 2.5;
-    this.x = Math.random() * (CANVAS_WIDTH - this.width);
-    this.y = Math.random() * (CANVAS_HEIGHT - this.height);
+    this.positionX = 0;
+    this.positionY = 0;
+    this.width = width;
+    this.height = height;
+    this.spriteWidth = this.width * ratio;
+    this.spriteHeight = this.height * ratio;
+    this.canvasX = Math.floor(
+      Math.random() * (CANVAS_WIDTH - this.spriteWidth)
+    );
+    this.canvasY = Math.floor(
+      Math.random() * (CANVAS_HEIGHT - this.spriteHeight)
+    );
+    this.frameRate = Math.floor(Math.random() * (5 - 2) + 2);
+    this.frameCount = 1;
     this.frame = 0;
-    this.flapSpeed = Math.floor(Math.random() * 3) + 1;
-    this.angle = 0;
-    this.angleSpeed = Math.random() * 0.2;
-    this.curve = Math.random() * 7;
-  }
-
-  update() {
-    this.x -= this.speed;
-    this.y += this.curve * Math.sin(this.angle);
-    this.angle += this.angleSpeed;
-
-    if (this.x + this.width < 0) this.x = canvas1.width;
-
-    if (gameFrame1 % this.flapSpeed === 0) this.frame++;
-    if (this.frame > 4) this.frame = 0;
-
-    this.draw();
   }
 
   draw() {
-    ctx1.drawImage(
+    this.ctx.drawImage(
       this.image,
-      this.frame * this.spriteWidth,
-      0,
-      this.spriteWidth,
-      this.spriteHeight,
-      this.x,
-      this.y,
+      this.positionX,
+      this.positionY,
       this.width,
-      this.height
+      this.height,
+      this.canvasX,
+      this.canvasY,
+      this.spriteWidth,
+      this.spriteHeight
     );
+  }
+
+  preUpdate() {
+    if (this.frame++ % this.frameRate === 0) {
+      this.positionX = this.frameCount++ * this.width;
+    }
   }
 }
 
-class Enemy2 {
+class Enemy1 extends Enemy {
   constructor() {
-    this.image = new Image();
-    this.image.src = "./images/enemy3.png";
-    this.spriteWidth = 212;
-    this.spriteHeight = 171;
-    this.width = this.spriteWidth / 2.5;
-    this.height = this.spriteHeight / 2.5;
-    this.x = CANVAS_WIDTH / 2 - this.width / 2;
-    this.y = 0;
-    this.flapSpeed = Math.random() * 3 + 1;
-    this.frame = 0;
-    this.frameRate = Math.floor(Math.random() * 30 + 15);
+    super(ctx1, 293.5, 154, Math.random() * (0.5 - 0.2) + 0.2);
+    this.image.src = "./images/enemy1.png";
+    this.totalFrames = 6;
   }
 
   update() {
+    this.preUpdate();
+
     if (this.frame % this.frameRate === 0) {
-      this.x += (CANVAS_WIDTH / 2 - this.width / 2) * Math.sin(this.frame);
-      this.y++;
+      this.canvasX +=
+        (Math.random() * (10 - 3) + 3) * (Math.random() * (1 + 1) - 1);
+
+      this.canvasY +=
+        (Math.random() * (10 - 3) + 3) * (Math.random() * (1 + 1) - 1);
     }
 
+    if (this.frameCount === this.totalFrames) this.frameCount = 0;
+
     this.draw();
   }
+}
 
-  draw() {
-    ctx2.drawImage(
-      this.image,
-      (this.frame++ % 6) * this.flapSpeed,
-      0,
-      this.spriteWidth,
-      this.spriteHeight,
-      this.x,
-      this.y,
-      this.width,
-      this.height
-    );
+class Enemy2 extends Enemy {
+  constructor() {
+    super(ctx2, 266, 184, 0.33);
+    this.image.src = "./images/enemy2.png";
+    this.totalFrames = 6;
+    this.angle = 0;
+    this.angleSpeed = Math.random() * 0.3;
+    this.amplitude = Math.random() * 7;
+  }
+
+  update() {
+    this.preUpdate();
+
+    if (this.frame % this.frameRate === 0) {
+      this.canvasY += this.amplitude * Math.sin(this.angle);
+      this.angle += this.angleSpeed;
+      this.canvasX -= 5;
+    }
+
+    if (this.canvasX < -this.spriteWidth) this.canvasX = CANVAS_WIDTH;
+    if (this.frameCount === this.totalFrames) this.frameCount = 0;
+
+    this.draw();
   }
 }
 
-for (let i = 0; i < numberOfEnemies1; i++) {
-  enemiesArr1.push(new Enemy1());
+class Enemy3 extends Enemy {
+  constructor() {
+    super(ctx3, 217.5, 176, 0.5);
+    this.image.src = "./images/enemy3.png";
+    this.totalFrames = 6;
+    this.canvasX = 0;
+    this.canvasY = 0;
+  }
+
+  update() {
+    this.preUpdate();
+
+    if (this.frameCount === this.totalFrames) this.frameCount = 0;
+
+    this.draw();
+  }
 }
 
-for (let i = 0; i < numberOfEnemies2; i++) {
-  enemiesArr2.push(new Enemy2());
-}
+const enemies = [];
+
+const enemiesCount = {
+  1: 20,
+  2: 20,
+  3: 1,
+};
+
+Object.keys(enemiesCount).forEach((count, i) => {
+  new Array(enemiesCount[count]).fill("").forEach(() => {
+    switch (i) {
+      case 0:
+        enemies.push(new Enemy1());
+        break;
+      case 1:
+        enemies.push(new Enemy2());
+        break;
+      case 2:
+        enemies.push(new Enemy3());
+        break;
+    }
+  });
+});
 
 function animate() {
   ctx1.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   ctx2.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  enemiesArr1.forEach((enemy) => {
-    enemy.update();
-  });
-  enemiesArr2.forEach((enemy) => {
-    enemy.update();
-  });
-  gameFrame1++;
+  ctx3.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  enemies.forEach((enemy) => enemy.update());
+
   requestAnimationFrame(animate);
 }
 

@@ -1,16 +1,29 @@
 body {
-  display: flex;
-  justify-content: space-around;
-  flex-direction: column;
-  align-items: center;
   height: 100vh;
   margin: 0;
   padding: 0;
 }
 
+#container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
 #canvas1,
-#canvas2 {
+#canvas2,
+#canvas3,
+#canvas4 {
   border: 3px solid black;
-  height: 400px;
-  width: 500px;
+  height: 700px;
+  width: 400px;
+}
+
+p {
+  text-align: center;
+  font-size: 3rem;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 0;
 }
